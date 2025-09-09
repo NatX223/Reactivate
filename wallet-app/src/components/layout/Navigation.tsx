@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { NAVIGATION_ITEMS } from '@/lib/constants';
 import Button from '@/components/ui/Button';
 import { cn } from '@/lib/utils';
+import ConnectWalletButton from '@/components/ui/ConnectWalletButton';
 
 const Navigation: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -74,14 +75,7 @@ const Navigation: React.FC = () => {
 
           {/* CTA Buttons */}
           <div className="hidden md:flex items-center space-x-4">
-            <Button variant="outline" size="sm">
-              Connect Wallet
-            </Button>
-            <Link href="/wallet">
-              <Button variant="primary" size="sm">
-                Launch App
-              </Button>
-            </Link>
+            <ConnectWalletButton />
           </div>
 
           {/* Mobile menu button */}

@@ -7,14 +7,23 @@ import WalletValueCard from '@/components/wallet/WalletValueCard';
 import ActionButtons from '@/components/wallet/ActionButtons';
 import HistorySection from '@/components/wallet/HistorySection';
 import ExploreButton from '@/components/wallet/ExploreButton';
+import Navigation from '@/components/layout/Navigation';
 
 export default function WalletPage() {
   const [balance, setBalance] = useState<WalletBalance | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
+
+  // Handle hydration
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Simulate loading data
   useEffect(() => {
+    if (!mounted) return;
+    
     const loadWalletData = async () => {
       setIsLoading(true);
       
@@ -27,10 +36,30 @@ export default function WalletPage() {
     };
 
     loadWalletData();
-  }, []);
+  }, [mounted]);
+
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+        <Navigation />
+        <div className="pt-16" />
+        <div className="max-w-md mx-auto px-4 py-6 md:max-w-lg md:px-6 md:py-8 lg:max-w-xl lg:px-8 lg:py-10">
+          <div className="animate-pulse">
+            <div className="h-32 bg-gray-200 rounded-2xl mb-8"></div>
+            <div className="flex justify-center gap-4 mb-12">
+              <div className="w-20 h-20 bg-gray-200 rounded-xl"></div>
+              <div className="w-20 h-20 bg-gray-200 rounded-xl"></div>
+              <div className="w-20 h-20 bg-gray-200 rounded-xl"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <Navigation />
       {/* Navigation spacing */}
       <div className="pt-16" />
       
