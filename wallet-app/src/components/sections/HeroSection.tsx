@@ -1,6 +1,7 @@
-import React from 'react';
-import Button from '@/components/ui/Button';
-import WalletHubAnimation from '@/components/animations/WalletHubAnimation';
+import React from "react";
+import Link from "next/link";
+import Button from "@/components/ui/Button";
+import WalletHubAnimation from "@/components/animations/WalletHubAnimation";
 
 const HeroSection: React.FC = () => {
   return (
@@ -18,28 +19,40 @@ const HeroSection: React.FC = () => {
                 Autonomous.
               </span>
             </h1>
-            
+
             <p className="text-xl text-gray-600 dark:text-gray-300 mb-8 leading-relaxed max-w-2xl">
-              Create a smart wallet or upgrade your EOA to perform automatic actions — scheduled payments, auto-investing, yield farming, and more. Developers can extend powers with plug-and-play modules.
+              Create a smart wallet or upgrade your EOA to perform automatic
+              actions — scheduled payments, auto-investing, yield farming, and
+              more. Developers can extend powers with plug-and-play modules.
             </p>
-            
+
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-8">
-              <Button variant="primary" size="lg" className="text-lg px-8 py-4">
+              <Button
+                variant="primary"
+                size="lg"
+                className="text-lg px-8 py-4"
+                href="/wallet"
+              >
                 Get Started
               </Button>
-              <Button variant="outline" size="lg" className="text-lg px-8 py-4">
+              <Button
+                variant="outline"
+                size="lg"
+                className="text-lg px-8 py-4"
+                href="#modules"
+              >
                 Explore Modules
               </Button>
             </div>
-            
+
             {/* Caption */}
             <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center justify-center lg:justify-start space-x-2">
               <span>Powered by</span>
               <span className="font-medium">Reactive Network</span>
             </p>
           </div>
-          
+
           {/* Right Side - Animation */}
           <div className="flex justify-center lg:justify-end">
             <div className="w-full max-w-md">
@@ -48,7 +61,7 @@ const HeroSection: React.FC = () => {
           </div>
         </div>
       </div>
-      
+
       {/* Background Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>

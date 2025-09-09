@@ -77,9 +77,11 @@ const Navigation: React.FC = () => {
             <Button variant="outline" size="sm">
               Connect Wallet
             </Button>
-            <Button variant="primary" size="sm">
-              Launch App
-            </Button>
+            <Link href="/wallet">
+              <Button variant="primary" size="sm">
+                Launch App
+              </Button>
+            </Link>
           </div>
 
           {/* Mobile menu button */}
@@ -123,9 +125,11 @@ const Navigation: React.FC = () => {
               <Button variant="outline" size="sm">
                 Connect Wallet
               </Button>
-              <Button variant="primary" size="sm">
-                Launch App
-              </Button>
+              <Link href="/wallet">
+                <Button variant="primary" size="sm">
+                  Launch App
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
