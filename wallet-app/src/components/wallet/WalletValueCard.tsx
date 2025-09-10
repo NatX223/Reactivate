@@ -70,14 +70,14 @@ const WalletValueCard: React.FC<WalletValueCardProps> = ({
       <div className="relative z-10 h-full flex flex-col justify-between">
         {/* Top Left - Label */}
         <div className="flex justify-start">
-          <span className="text-white/80 text-sm font-medium">
+          <span className="text-white/80 text-sm font-clash font-medium">
             Wallet Balance
           </span>
         </div>
         
         {/* Center - Main USD Value */}
         <div className="flex-1 flex items-center justify-center">
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white text-center leading-none">
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-clash font-bold text-white text-center leading-none">
             {formatCurrency(balance.usdValue)}
           </h1>
         </div>
@@ -85,7 +85,7 @@ const WalletValueCard: React.FC<WalletValueCardProps> = ({
         {/* Bottom Right - Secondary Token Value */}
         <div className="flex justify-end items-end">
           <div className="text-right">
-            <div className="text-white/90 text-lg font-semibold">
+            <div className="text-white/90 text-lg font-clash font-semibold">
               {formatTokenAmount(balance.primaryToken.amount, balance.primaryToken.symbol)}
             </div>
             {balance.secondaryTokens && balance.secondaryTokens.length > 0 && (

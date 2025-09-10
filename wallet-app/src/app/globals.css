@@ -9,13 +9,8 @@
   --surface: #f8fafc;
   --border: #e2e8f0;
   --muted: #64748b;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-clash: 'Clash Display', sans-serif;
+  --font-inter: var(--font-inter);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -31,7 +26,7 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-inter), system-ui, sans-serif;
 }
 
 /* Custom animations */
@@ -73,4 +68,29 @@ html {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+}
+
+/* Clash Display font utilities */
+.font-clash {
+  font-family: var(--font-clash);
+}
+
+.font-clash-light {
+  font-family: var(--font-clash);
+  font-weight: 300;
+}
+
+.font-clash-medium {
+  font-family: var(--font-clash);
+  font-weight: 500;
+}
+
+.font-clash-semibold {
+  font-family: var(--font-clash);
+  font-weight: 600;
+}
+
+.font-clash-bold {
+  font-family: var(--font-clash);
+  font-weight: 700;
 }

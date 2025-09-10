@@ -26,7 +26,7 @@ const ExploreButton: React.FC<ExploreButtonProps> = ({ onClick, className }) => 
         onClick={handleClick}
         className={cn(
           'group relative inline-block',
-          'text-2xl font-bold',
+          'text-2xl font-clash font-bold',
           'bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent',
           'hover:from-blue-500 hover:to-purple-500',
           'transition-all duration-300 ease-out',

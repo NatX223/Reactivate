@@ -77,7 +77,7 @@ const ActionButton: React.FC<{ action: WalletAction }> = ({ action }) => {
         </div>
         
         {/* Label */}
-        <span className="text-xs font-medium text-gray-700 group-hover:text-blue-600 transition-colors duration-200">
+        <span className="text-xs font-clash font-medium text-gray-700 group-hover:text-blue-600 transition-colors duration-200">
           {action.label}
         </span>
       </div>

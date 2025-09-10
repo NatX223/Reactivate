@@ -34,7 +34,7 @@ const EmptyState = () => (
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
       </svg>
     </div>
-    <h3 className="text-lg font-medium text-gray-900 mb-2">No transactions yet</h3>
+    <h3 className="text-lg font-clash font-medium text-gray-900 mb-2">No transactions yet</h3>
     <p className="text-gray-500 max-w-sm mx-auto">
       Your transaction history will appear here once you start using your wallet.
     </p>
@@ -55,7 +55,7 @@ const HistorySection: React.FC<HistorySectionProps> = ({
     <div className={cn('w-full', className)}>
       {/* Section Header */}
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-900 relative inline-block">
+        <h2 className="text-2xl font-clash font-bold text-gray-900 relative inline-block">
           History
           {/* Gradient underline */}
           <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full" />

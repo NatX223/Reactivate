@@ -10,7 +10,7 @@ const HeroSection: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           {/* Left Side - Text Content */}
           <div className="text-center lg:text-left">
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-clash font-bold mb-6 leading-tight">
               <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                 Your Wallet.
               </span>
@@ -49,7 +49,7 @@ const HeroSection: React.FC = () => {
             {/* Caption */}
             <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center justify-center lg:justify-start space-x-2">
               <span>Powered by</span>
-              <span className="font-medium">Reactive Network</span>
+              <span className="font-clash font-medium">Reactive Network</span>
             </p>
           </div>
 
