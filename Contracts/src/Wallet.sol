@@ -67,7 +67,7 @@ contract ReactWallet is AbstractPausableReactive {
         require(approvedModules[module] >= amount, "Module not approved");
         _;
     }
-
+    
     modifier onlyApprovedTokenModule(address module, address token, uint256 amount) {
         require(approvedTokenModules[module][token] >= amount, "Module not approved");
         _;
