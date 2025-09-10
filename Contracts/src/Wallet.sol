@@ -9,6 +9,7 @@ contract ReactWallet is Ownable {
     uint256 public receivePercentage;
     mapping (address => uint256) public approvedModules;
     mapping (address => mapping (address => uint256)) public approvedTokenModules;
+    
     constructor(address owner) Ownable(owner) {}
 
     function approveModuleETH(address module, uint256 amount) public onlyOwner {
