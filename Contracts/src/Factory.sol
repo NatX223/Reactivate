@@ -7,7 +7,7 @@ import {ReactWallet} from "./Wallet.sol";
 contract ReactWalletFactory is Ownable {
     address public serviceAddress;
     mapping (address => address) public wallet;
-        event Received(
+    event Received(
         address indexed origin,
         address indexed sender,
         uint256 indexed value
@@ -17,14 +17,14 @@ contract ReactWalletFactory is Ownable {
         serviceAddress = 0x0000000000000000000000000000000000fffFfF;
     }
 
-    function createWallet() public {
-        ReactWallet newWallet = new ReactWallet{value: 0.1 ether}(serviceAddress);
+    function createWallet(uint256 _cronTopic, uint256 amount, address recipient, address token) public {
+        ReactWallet newWallet = new ReactWallet{value: 1 ether}(serviceAddress, _cronTopic, amount, recipient, token);
 
         wallet[msg.sender] = address(newWallet);
     }
 
-    function getWallet() public view returns (address) {
-        return wallet[msg.sender];
+    function getWallet(address owner) public view returns (address) {
+        return wallet[owner];
     }
 
     receive() external payable {

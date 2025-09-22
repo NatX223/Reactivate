@@ -1,35 +1,18 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { WalletAction } from '@/types/wallet';
 import { cn } from '@/lib/utils';
+import SendModal from './SendModal';
+import ReceiveModal from './ReceiveModal';
+import ModulesModal from './ModulesModal';
 
 interface ActionButtonsProps {
   actions?: WalletAction[];
   className?: string;
 }
 
-// Default actions
-const defaultActions: WalletAction[] = [
-  {
-    id: 'receive',
-    label: 'Receive',
-    icon: 'arrow-down',
-    action: () => console.log('Receive clicked')
-  },
-  {
-    id: 'send',
-    label: 'Send',
-    icon: 'arrow-up',
-    action: () => console.log('Send clicked')
-  },
-  {
-    id: 'modules',
-    label: 'Modules',
-    icon: 'puzzle',
-    action: () => console.log('Modules clicked')
-  }
-];
+
 
 // Icon components
 const IconMap: Record<string, React.ReactNode> = {
@@ -86,19 +69,83 @@ const ActionButton: React.FC<{ action: WalletAction }> = ({ action }) => {
 };
 
 const ActionButtons: React.FC<ActionButtonsProps> = ({ 
-  actions = defaultActions, 
+  actions, 
   className 
 }) => {
+  const [sendModalOpen, setSendModalOpen] = useState(false);
+  const [receiveModalOpen, setReceiveModalOpen] = useState(false);
+  const [modulesModalOpen, setModulesModalOpen] = useState(false);
+  const [activeModules, setActiveModules] = useState(['autopay', 'dca-bot']);
+
+  // Define actions with modal handlers
+  const modalActions: WalletAction[] = [
+    {
+      id: 'receive',
+      label: 'Receive',
+      icon: 'arrow-down',
+      action: () => setReceiveModalOpen(true)
+    },
+    {
+      id: 'send',
+      label: 'Send',
+      icon: 'arrow-up',
+      action: () => setSendModalOpen(true)
+    },
+    {
+      id: 'modules',
+      label: 'Modules',
+      icon: 'puzzle',
+      action: () => setModulesModalOpen(true)
+    }
+  ];
+
+  const finalActions = actions || modalActions;
+
+  const handleSend = (data: any) => {
+    console.log('Send transaction:', data);
+    // Here you would integrate with your wallet/blockchain logic
+  };
+
+  const handleToggleModule = (moduleId: string, enabled: boolean) => {
+    setActiveModules(prev => 
+      enabled 
+        ? [...prev, moduleId]
+        : prev.filter(id => id !== moduleId)
+    );
+    console.log(`${enabled ? 'Enabled' : 'Disabled'} module:`, moduleId);
+  };
+
   return (
-    <div className={cn(
-      'flex justify-center items-center gap-4 md:gap-6 lg:gap-8',
-      'w-full max-w-sm mx-auto',
-      className
-    )}>
-      {actions.map((action) => (
-        <ActionButton key={action.id} action={action} />
-      ))}
-    </div>
+    <>
+      <div className={cn(
+        'flex justify-center items-center gap-4 md:gap-6 lg:gap-8',
+        'w-full max-w-sm mx-auto',
+        className
+      )}>
+        {finalActions.map((action) => (
+          <ActionButton key={action.id} action={action} />
+        ))}
+      </div>
+
+      {/* Modals */}
+      <SendModal
+        isOpen={sendModalOpen}
+        onClose={() => setSendModalOpen(false)}
+        onSend={handleSend}
+      />
+      
+      <ReceiveModal
+        isOpen={receiveModalOpen}
+        onClose={() => setReceiveModalOpen(false)}
+      />
+      
+      <ModulesModal
+        isOpen={modulesModalOpen}
+        onClose={() => setModulesModalOpen(false)}
+        activeModules={activeModules}
+        onToggleModule={handleToggleModule}
+      />
+    </>
   );
 };
 

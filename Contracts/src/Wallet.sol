@@ -4,7 +4,8 @@ pragma solidity ^0.8.13;
 import {IERC20} from "../lib/forge-std/src/interfaces/IERC20.sol";
 import '../lib/reactive-lib/src/interfaces/ISystemContract.sol';
 import '../lib/reactive-lib/src/abstract-base/AbstractPausableReactive.sol';
-contract ReactWallet is AbstractPausableReactive {
+import '../lib/reactive-lib/src/abstract-base/AbstractCallback.sol';
+contract ReactWallet is AbstractPausableReactive, AbstractCallback {
     address public walletOwner;
     uint256 public CRON_TOPIC;
     uint256 public scheduledAmount;
@@ -25,9 +26,11 @@ contract ReactWallet is AbstractPausableReactive {
         uint256 indexed value
     );
     
-    constructor(address _service) payable {
+    uint256 public count;
+
+    constructor(address _service, uint256 _cronTopic, uint256 amount, address recipient, address token) AbstractCallback(_service) payable {
         walletOwner = tx.origin;
-        service = ISystemContract(payable(_service));
+        setSchedule(_service, _cronTopic, amount, recipient, token);
     }
 
     function approveModuleETH(address module, uint256 amount) public onlyWalletOwner {
@@ -78,7 +81,8 @@ contract ReactWallet is AbstractPausableReactive {
         _;
     }
 
-    function setSchedule(uint256 _cronTopic, uint256 amount, address recipient, address token) external onlyWalletOwner {
+    function setSchedule(address _service, uint256 _cronTopic, uint256 amount, address recipient, address token) internal {
+        service = ISystemContract(payable(_service));
         CRON_TOPIC = _cronTopic;
         scheduledAmount = amount;
         scheduledRecipient = recipient;
@@ -101,14 +105,26 @@ contract ReactWallet is AbstractPausableReactive {
         return result;
     }
 
+    function callback(address sender) authorizedSenderOnly rvmIdOnly(sender) external {
+        if (scheduledToken == address(0)) {
+            count = count + 1;
+            payable(scheduledRecipient).transfer(scheduledAmount);
+        } else {
+            count = count + 1;
+            IERC20(scheduledToken).transfer(scheduledRecipient, scheduledAmount);
+        }
+    }
+
     function react(LogRecord calldata log) external vmOnly {
+        count = count + 1;
         if (log.topic_0 == CRON_TOPIC) {
             lastCronBlock = block.number;
-            if (scheduledToken == address(0)) {
-                payable(scheduledRecipient).transfer(scheduledAmount);
-            } else {
-                IERC20(scheduledToken).transfer(scheduledRecipient, scheduledAmount);
-            }
+            emit Callback(
+                block.chainid,
+                address(this),
+                GAS_LIMIT,
+                abi.encodeWithSignature("callback(), address(0)")
+            );
         }
     }
 

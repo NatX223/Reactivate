@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { Transaction } from '@/types/wallet';
-import TransactionCard from './TransactionCard';
-import { cn } from '@/lib/utils';
+import React from "react";
+import { Transaction } from "@/types/wallet";
+import TransactionCard from "./TransactionCard";
+import { cn } from "@/lib/utils";
 
 interface HistorySectionProps {
   transactions: Transaction[];
@@ -30,32 +30,45 @@ const SkeletonCard = () => (
 const EmptyState = () => (
   <div className="text-center py-12">
     <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
-      <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+      <svg
+        className="w-8 h-8 text-gray-400"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+        />
       </svg>
     </div>
-    <h3 className="text-lg font-clash font-medium text-gray-900 mb-2">No transactions yet</h3>
+    <h3 className="text-lg font-clash font-medium text-gray-900 mb-2">
+      No transactions yet
+    </h3>
     <p className="text-gray-500 max-w-sm mx-auto">
-      Your transaction history will appear here once you start using your wallet.
+      Your transaction history will appear here once you start using your
+      wallet.
     </p>
   </div>
 );
 
-const HistorySection: React.FC<HistorySectionProps> = ({ 
-  transactions, 
-  isLoading = false, 
-  className 
+const HistorySection: React.FC<HistorySectionProps> = ({
+  transactions,
+  isLoading = false,
+  className,
 }) => {
   // Sort transactions by timestamp (newest first)
-  const sortedTransactions = [...transactions].sort((a, b) => 
-    b.timestamp.getTime() - a.timestamp.getTime()
+  const sortedTransactions = [...transactions].sort(
+    (a, b) => b.timestamp.getTime() - a.timestamp.getTime()
   );
 
   return (
-    <div className={cn('w-full', className)}>
+    <div className={cn("w-full", className)}>
       {/* Section Header */}
       <div className="mb-6">
-        <h2 className="text-2xl font-clash font-bold text-gray-900 relative inline-block">
+        <h2 className="text-2xl font-clash font-bold text-white-900 relative inline-block">
           History
           {/* Gradient underline */}
           <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full" />
@@ -81,7 +94,7 @@ const HistorySection: React.FC<HistorySectionProps> = ({
                 className="w-full"
               />
             ))}
-            
+
             {/* Load More Button (for future pagination) */}
             {sortedTransactions.length >= 10 && (
               <div className="text-center mt-6">
