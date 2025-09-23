@@ -5,13 +5,13 @@ import '../../lib/reactive-lib/src/interfaces/ISystemContract.sol';
 import '../../lib/reactive-lib/src/abstract-base/AbstractPausableReactive.sol';
 import '../../lib/reactive-lib/src/interfaces/IReactive.sol';
 
-contract reactive is IReactive, AbstractPausableReactive {
+contract DebtReactive is IReactive, AbstractPausableReactive {
 
     uint64 private constant GAS_LIMIT = 1000000;
     uint256 private constant REACTIVE_CHAIN_ID = 1597;
-    uint256 private CALL_TOPIC_0 = 0xae9b008540831f838abd0c11ccc58c6373c34ab68e881d96aefe64688f45ec6d;
+    uint256 private constant CALL_TOPIC_0 = 0xae9b008540831f838abd0c11ccc58c6373c34ab68e881d96aefe64688f45ec6d;
     
-    address public callbackAddress;
+    address public debtPayer;
     address public funderContract;
 
     event Received(
@@ -20,8 +20,8 @@ contract reactive is IReactive, AbstractPausableReactive {
         uint256 indexed value
     );
 
-    constructor(address _service, address _callbackAddress, address _funderContract) payable {
-        callbackAddress = _callbackAddress;
+    constructor(address _service, address _debtPayer, address _funderContract) payable {
+        debtPayer = _debtPayer;
         _funderContract = funderContract;
         service = ISystemContract(payable(_service));
         if (!vm) {
@@ -51,7 +51,7 @@ contract reactive is IReactive, AbstractPausableReactive {
 
         emit Callback(
         REACTIVE_CHAIN_ID,
-        callbackAddress,
+        debtPayer,
         GAS_LIMIT,
         payload
     );

@@ -8,11 +8,11 @@ import '../../lib/reactive-lib/src/interfaces/IReactive.sol';
 contract reactive is IReactive, AbstractPausableReactive {
 
     uint64 private constant GAS_LIMIT = 1000000;
-    uint256 private constant REACTIVE_CHAIN_ID = 1597;
-    uint256 private constant CALL_TOPIC_0 = 0x8dd725fa9d6cd150017ab9e60318d40616439424e2fade9c1c58854950917dfc;
+    uint256 private CHAIN_ID;
+    uint256 private EVENT_TOPIC_0;
     
     address public callbackHandler;
-    address public reactiveContract;
+    address public callbackContract;
 
     event Received(
         address indexed origin,
@@ -20,21 +20,23 @@ contract reactive is IReactive, AbstractPausableReactive {
         uint256 indexed value
     );
 
-    constructor(address _service, address _callbackHandler, address _reactiveContract) payable {
+    constructor(address _service, address _callbackHandler, address _callbackContract, uint256 _CHAIN_ID, uint256 _EVENT_TOPIC_0) payable {
         callbackHandler = _callbackHandler;
-        reactiveContract = _reactiveContract;
+        callbackContract = _callbackContract;
+        EVENT_TOPIC_0 = _EVENT_TOPIC_0;
+        CHAIN_ID = _CHAIN_ID;
         service = ISystemContract(payable(_service));
         if (!vm) {
-            service.subscribe(REACTIVE_CHAIN_ID, _reactiveContract, CALL_TOPIC_0, REACTIVE_IGNORE, REACTIVE_IGNORE, REACTIVE_IGNORE);
+            service.subscribe(CHAIN_ID, _callbackContract, EVENT_TOPIC_0, REACTIVE_IGNORE, REACTIVE_IGNORE, REACTIVE_IGNORE);
         }
     }
 
     function getPausableSubscriptions() internal view override returns (Subscription[] memory) {
         Subscription[] memory result = new Subscription[](1);
         result[0] = Subscription(
-            REACTIVE_CHAIN_ID,
+            CHAIN_ID,
             address(service),
-            CALL_TOPIC_0,
+            EVENT_TOPIC_0,
             REACTIVE_IGNORE,
             REACTIVE_IGNORE,
             REACTIVE_IGNORE
@@ -51,7 +53,7 @@ contract reactive is IReactive, AbstractPausableReactive {
         );
 
         emit Callback(
-        REACTIVE_CHAIN_ID,
+        CHAIN_ID,
         callbackHandler,
         GAS_LIMIT,
         payload
