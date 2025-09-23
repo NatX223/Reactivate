@@ -9,10 +9,10 @@ contract reactive is IReactive, AbstractPausableReactive {
 
     uint64 private constant GAS_LIMIT = 1000000;
     uint256 private constant REACTIVE_CHAIN_ID = 1597;
-    uint256 private constant CALL_TOPIC_0 = 0x7c6a000d6581009ece38db2bf0a802db87c25d55bdf668f06a962b9c71884773;
+    uint256 private constant CALL_TOPIC_0 = 0x8dd725fa9d6cd150017ab9e60318d40616439424e2fade9c1c58854950917dfc;
     
     address public callbackAddress;
-    address public callbackReceiverAddress;
+    address public reactiveContract;
 
     event Received(
         address indexed origin,
@@ -20,12 +20,12 @@ contract reactive is IReactive, AbstractPausableReactive {
         uint256 indexed value
     );
 
-    constructor(address _service, address _callbackAddress, address _callbackReceiverAddress) payable {
+    constructor(address _service, address _callbackAddress, address _reactiveContract) payable {
         callbackAddress = _callbackAddress;
-        callbackReceiverAddress = _callbackReceiverAddress;
+        _reactiveContract = reactiveContract;
         service = ISystemContract(payable(_service));
         if (!vm) {
-            service.subscribe(REACTIVE_CHAIN_ID, _callbackReceiverAddress, CALL_TOPIC_0, REACTIVE_IGNORE, REACTIVE_IGNORE, REACTIVE_IGNORE);
+            service.subscribe(REACTIVE_CHAIN_ID, _reactiveContract, CALL_TOPIC_0, REACTIVE_IGNORE, REACTIVE_IGNORE, REACTIVE_IGNORE);
         }
     }
 
