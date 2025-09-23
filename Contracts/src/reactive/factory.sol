@@ -36,11 +36,11 @@ contract ReactiveFunderFactory {
         
         Funder newReactiveFunder = new Funder{value: initialFundAmount}(SERVICE, reactiveContract, refillValue, refillthreshold);
         address funderAddress = address(newReactiveFunder);
-        Reactive newReactiveTracker = new Reactive{value: 2 ether}(SERVICE, funderAddress, reactiveContract);
+        Reactive newReactiveTracker = new Reactive{value: 0.5 ether}(SERVICE, funderAddress, reactiveContract);
 
-        DebtPayer newDebtPayer = new DebtPayer{value: 2 ether}(SERVICE, reactiveContract);
+        DebtPayer newDebtPayer = new DebtPayer{value: 0.5 ether}(SERVICE, reactiveContract);
         address debtPayerAddress = address(newDebtPayer);
-        DebtReactive newDebtReactive = new DebtReactive{value: 2 ether}(SERVICE, debtPayerAddress, funderAddress);
+        DebtReactive newDebtReactive = new DebtReactive{value: 0.5 ether}(SERVICE, debtPayerAddress, funderAddress);
 
         devBalance[dev] = devBalance[dev] - initialFundAmount;
 
