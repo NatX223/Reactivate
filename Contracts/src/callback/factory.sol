@@ -26,7 +26,7 @@ contract ReactiveFunderFactory {
 
     mapping (address => uint256) public devBalance;
 
-    constructor() {
+    constructor() payable {
         owner = msg.sender;
     }
 
@@ -37,11 +37,11 @@ contract ReactiveFunderFactory {
         
         Funder newReactiveFunder = new Funder{value: initialFundAmount}(service, callbackContract, refillValue, refillthreshold);
         address funderAddress = address(newReactiveFunder);
-        Reactive newReactiveTracker = new Reactive{value: 2 ether}(service, funderAddress, callbackContract, eventTopic);
+        Reactive newReactiveTracker = new Reactive{value: 0.2 ether}(service, funderAddress, callbackContract, eventTopic);
 
-        DebtPayer newDebtPayer = new DebtPayer{value: 2 ether}(service, callbackContract);
+        DebtPayer newDebtPayer = new DebtPayer{value: 0.2 ether}(service, callbackContract);
         address debtPayerAddress = address(newDebtPayer);
-        DebtReactive newDebtReactive = new DebtReactive{value: 2 ether}(service, debtPayerAddress, funderAddress);
+        DebtReactive newDebtReactive = new DebtReactive{value: 0.2 ether}(service, debtPayerAddress, funderAddress);
 
         devBalance[dev] = devBalance[dev] - initialFundAmount;
 
