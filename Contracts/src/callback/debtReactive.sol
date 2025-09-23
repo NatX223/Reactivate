@@ -20,8 +20,8 @@ contract DebtReactive is IReactive, AbstractPausableReactive {
         uint256 indexed value
     );
 
-    constructor(address _service, address _debtPayer, address _funderContract, uint256 _CHAIN_ID) payable {
-        CHAIN_ID = _CHAIN_ID;
+    constructor(address _service, address _debtPayer, address _funderContract) payable {
+        CHAIN_ID = block.chainid;
         debtPayer = _debtPayer;
         _funderContract = funderContract;
         service = ISystemContract(payable(_service));
