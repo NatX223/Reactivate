@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 import '../../lib/reactive-lib/src/abstract-base/AbstractCallback.sol';
 
-contract funder is AbstractCallback {
+contract Funder is AbstractCallback {
 
     address public reactiveReceiver;
     uint256 public refillValue;

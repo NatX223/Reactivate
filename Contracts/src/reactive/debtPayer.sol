@@ -6,15 +6,15 @@ import './IAbstractPayer.sol';
 
 contract DebtPayer is AbstractCallback {
 
-    address public callbackContract;
+    address public reactiveContract;
     event callbackHandled(address indexed funderContract);
     
-    constructor(address _service, address _callbackContract) AbstractCallback(_service) payable {
-        callbackContract = _callbackContract;
+    constructor(address _service, address _reactiveContract) AbstractCallback(_service) payable {
+        reactiveContract = _reactiveContract;
     }
     
     function callback(address sender) external authorizedSenderOnly rvmIdOnly(sender) {
-        IAbsctractPayer(callbackContract).coverDebt();
+        IAbsctractPayer(reactiveContract).coverDebt();
         
         emit callbackHandled(address(this));
     }
