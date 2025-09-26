@@ -15,7 +15,7 @@ const WalletConnectedButton: React.FC = () => {
   const handleGetStarted = () => {
     if (isConnected) {
       // Wallet is connected, navigate to wallet page
-      router.push("/wallet");
+      router.push("/dashboard");
     } else {
       // Wallet not connected, open connect modal and set flag for navigation
       pendingNavigation.current = true;

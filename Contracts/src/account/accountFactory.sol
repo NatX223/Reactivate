@@ -5,6 +5,7 @@ import "./devAccount.sol";
 
 contract AccountFactory {
     address public admin;
+    address public funderFactory;
 
     uint256 public userCount;
     mapping (address => address) public devAccounts;
@@ -19,14 +20,20 @@ contract AccountFactory {
         admin = msg.sender;
     }
 
-    function createAccount() external {
+    function setFunderFactory(address _funderFactory) external {
+        funderFactory = _funderFactory;
+    }
+
+    function createAccount(address dev) external payable {
         if (userCount < 11) {
             DevAccount newAccount = new DevAccount{value: 2 ether}(msg.sender, admin);
-            devAccounts[msg.sender] = address(newAccount);
+            devAccounts[dev] = address(newAccount);
+            newAccount.whitelist(funderFactory);
             userCount = userCount + 1;
         } else {
             DevAccount newAccount = new DevAccount{value: 0 ether}(msg.sender, admin);
-            devAccounts[msg.sender] = address(newAccount);
+            devAccounts[dev] = address(newAccount);
+            newAccount.whitelist(funderFactory);
             userCount = userCount + 1;
         }
     }
