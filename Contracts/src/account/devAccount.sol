@@ -1,21 +1,23 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "../../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
-
-contract Account{
+contract DevAccount {
     address public admin;
     address public owner;
-    address public fundingToken;
 
     mapping (address => bool) public whitelisted;
 
-    constructor(address _owner, address _admin, address _fundingToken) {
+    event Received(
+        address indexed origin,
+        address indexed sender,
+        uint256 indexed value
+    );
+
+    constructor(address _owner, address _admin) payable {
         admin = _admin;
         owner = _owner;
     }
 
-    // whitelist function
     function whitelist(address funderContract) external onlyAdmin {
         whitelisted[funderContract] = true;
     }
@@ -24,14 +26,26 @@ contract Account{
         whitelisted[funderContract] = false;
     }
 
-    // send ether function
-    function fundContract(address fundedContract, uint256 amount) external onlyWhitelisted {
+    function withdraw(address fundedContract, uint256 amount) external onlyWhitelisted {
         (bool success, ) = fundedContract.call{value: amount}("");
         require(success, "Payment failed.");
     }
 
-    // send token function
-    function fundContractToken(address fundedContract, uint256 amount) {
-        IERC20(fundingToken).transfer(fundedContract, amount);
+    receive() external payable {
+        emit Received(
+            tx.origin,
+            msg.sender,
+            msg.value
+        );
+    }
+
+    modifier onlyAdmin {
+        require(msg.sender == admin || msg.sender == owner, "Only authorized can call this function");
+        _;
+    }
+
+    modifier onlyWhitelisted {
+        require(msg.sender == admin || whitelisted[msg.sender] == true, "Only authorized can call this function");
+        _;
     }
 }

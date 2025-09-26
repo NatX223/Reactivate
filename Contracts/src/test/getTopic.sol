@@ -4,7 +4,6 @@ pragma solidity ^0.8.0;
 contract getTopic {
     event refillHandled(address indexed refillerAddress, address reactiveContract);
     event callbackHandled(address indexed funderContract);
-    event callbackHandled(address indexed contractAddress);
     
     constructor() {}
     
