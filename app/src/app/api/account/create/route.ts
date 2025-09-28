@@ -5,7 +5,13 @@ const accountFactoryABI = [
   {
     "type": "function",
     "name": "createAccount",
-    "inputs": [],
+    "inputs": [
+      {
+        "name": "dev",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
     "outputs": [],
     "stateMutability": "nonpayable"
   }

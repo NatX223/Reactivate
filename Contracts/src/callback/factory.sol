@@ -35,20 +35,21 @@ contract ReactiveFunderFactory {
     function setupFunder(address callbackContract, address reactiveContract, uint256 eventTopic, uint256 refillValue, uint256 refillthreshold) payable external {
         address devAccount = IAccountFactory(accountFactory).devAccounts(msg.sender);
         uint256 devAccountBalance = devAccount.balance;
-        uint256 initialFundAmount = (refillValue * 2) + 2 ether;
-        uint256 deploymentAmount = initialFundAmount + 6 ether;
+        uint256 initialFundAmount = (refillValue * 2) + 0.2 ether;
+        uint256 deploymentAmount = initialFundAmount + 0.6 ether;
         
         require(devAccountBalance >= deploymentAmount, "Not enough REACT in dev account");
         
-        Funder newReactiveFunder = new Funder{value: initialFundAmount}(service, callbackContract, reactiveContract, refillValue, refillthreshold);
+        Funder newReactiveFunder = new Funder{value: initialFundAmount}(callbackContract, reactiveContract, refillValue, refillthreshold, devAccount);
         address funderAddress = address(newReactiveFunder);
-        new Reactive{value: 2 ether}(service, funderAddress, callbackContract, eventTopic);
+        new Reactive{value: 0.2 ether}(service, funderAddress, callbackContract, eventTopic);
 
-        DebtPayer newDebtPayer = new DebtPayer{value: 2 ether}(service, callbackContract, reactiveContract);
+        DebtPayer newDebtPayer = new DebtPayer{value: 0.2 ether}(service, callbackContract, reactiveContract);
         address debtPayerAddress = address(newDebtPayer);
-        new DebtReactive{value: 2 ether}(service, debtPayerAddress, funderAddress);
+        new DebtReactive{value: 0.2 ether}(service, debtPayerAddress, funderAddress);
 
         IDevAccount(devAccount).withdraw(address(this), deploymentAmount);
+        IDevAccount(devAccount).whitelist(funderAddress);
 
         emit Setup(msg.sender, funderAddress, address(newDebtPayer));
     }

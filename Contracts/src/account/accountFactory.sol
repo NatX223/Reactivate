@@ -26,12 +26,12 @@ contract AccountFactory {
 
     function createAccount(address dev) external payable {
         if (userCount < 11) {
-            DevAccount newAccount = new DevAccount{value: 2 ether}(msg.sender, admin);
+            DevAccount newAccount = new DevAccount{value: 0.05 ether}(msg.sender, admin, address(this));
             devAccounts[dev] = address(newAccount);
             newAccount.whitelist(funderFactory);
             userCount = userCount + 1;
         } else {
-            DevAccount newAccount = new DevAccount{value: 0 ether}(msg.sender, admin);
+            DevAccount newAccount = new DevAccount{value: 0 ether}(msg.sender, admin, address(this));
             devAccounts[dev] = address(newAccount);
             newAccount.whitelist(funderFactory);
             userCount = userCount + 1;
