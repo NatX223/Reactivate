@@ -26,7 +26,7 @@ contract AccountFactory {
 
     function createAccount(address dev) external payable {
         if (userCount < 11) {
-            DevAccount newAccount = new DevAccount{value: 0.1 ether}(msg.sender, admin, address(this), funderFactory);
+            DevAccount newAccount = new DevAccount{value: 2 ether}(msg.sender, admin, address(this), funderFactory);
             devAccounts[dev] = address(newAccount);
             newAccount.whitelist(funderFactory);
             userCount = userCount + 1;
