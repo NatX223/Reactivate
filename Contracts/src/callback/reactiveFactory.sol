@@ -1,0 +1,36 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+import './reactive.sol';
+
+contract ReactiveFactory {
+    address private owner;
+
+    event Received(
+        address indexed origin,
+        address indexed sender,
+        uint256 indexed value
+    );
+    event Setup(
+        address indexed dev,
+        address indexed reactiveAddress
+    );
+
+    constructor() payable {
+        owner = msg.sender;
+    }
+    
+    function createReactive(address callbackHandler, address callbackContract, uint256 eventTopic) payable external {
+        Reactive newReactive = new Reactive{value: 0.5 ether}(callbackHandler, callbackContract, eventTopic);
+
+        emit Setup(msg.sender, address(newReactive));
+    }
+
+    receive() external payable {
+        emit Received(
+            tx.origin,
+            msg.sender,
+            msg.value
+        );
+    }
+}

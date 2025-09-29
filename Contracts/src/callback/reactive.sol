@@ -8,6 +8,7 @@ import '../../lib/reactive-lib/src/interfaces/IReactive.sol';
 contract Reactive is IReactive, AbstractPausableReactive {
 
     uint64 private constant GAS_LIMIT = 1000000;
+    address public constant SERVICE = 0x0000000000000000000000000000000000fffFfF;
     uint256 private CHAIN_ID;
     uint256 private EVENT_TOPIC_0;
     
@@ -20,12 +21,12 @@ contract Reactive is IReactive, AbstractPausableReactive {
         uint256 indexed value
     );
 
-    constructor(address _service, address _callbackHandler, address _callbackContract, uint256 _EVENT_TOPIC_0) payable {
+    constructor(address _callbackHandler, address _callbackContract, uint256 _EVENT_TOPIC_0) payable {
         callbackHandler = _callbackHandler;
         callbackContract = _callbackContract;
         EVENT_TOPIC_0 = _EVENT_TOPIC_0;
         CHAIN_ID = block.chainid;
-        service = ISystemContract(payable(_service));
+        service = ISystemContract(payable(SERVICE));
         if (!vm) {
             service.subscribe(CHAIN_ID, _callbackContract, EVENT_TOPIC_0, REACTIVE_IGNORE, REACTIVE_IGNORE, REACTIVE_IGNORE);
         }
