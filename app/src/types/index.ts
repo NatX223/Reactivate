@@ -17,7 +17,6 @@ export interface StepData {
   id: number;
   title: string;
   description: string;
-  icon: string;
 }
 
 export interface UseCaseData {
@@ -33,7 +32,7 @@ export interface TestimonialData {
   quote: string;
   author: string;
   role: string;
-  type: 'user' | 'developer';
+  type: 'founder' | 'developer';
 }
 
 export interface ButtonProps {

@@ -2,7 +2,6 @@ import { NavigationItem, ModuleData, StepData, UseCaseData, TestimonialData } fr
 
 export const NAVIGATION_ITEMS: NavigationItem[] = [
   { label: 'How It Works', href: '#how-it-works' },
-  { label: 'Monitoring Tools', href: '#modules' },
   { label: 'Use Cases', href: '#use-cases' },
   { label: 'Docs', href: '/docs', external: true }
 ];
@@ -11,26 +10,22 @@ export const WORKFLOW_STEPS: StepData[] = [
   {
     id: 1,
     title: 'Deploy Reactive Contract',
-    description: 'Deploy your callback or reactive contract on the network',
-    icon: 'wallet'
+    description: 'Deploy your callback or reactive contract on the network'
   },
   {
     id: 2,
     title: 'Set Monitoring Rules',
-    description: 'Configure balance thresholds and replenishment amounts',
-    icon: 'clock'
+    description: 'Configure balance thresholds and replenishment amounts'
   },
   {
     id: 3,
     title: 'Choose Payment Method',
-    description: 'Pay with ETH, REACT tokens, stablecoins, or credit card',
-    icon: 'puzzle'
+    description: 'Pay with ETH, REACT tokens, stablecoins, or credit card'
   },
   {
     id: 4,
     title: 'Auto-Replenishment',
-    description: 'System monitors and refills your contracts automatically',
-    icon: 'rocket'
+    description: 'System monitors and refills your contracts automatically'
   }
 ];
 
@@ -86,23 +81,16 @@ export const USE_CASES: UseCaseData[] = [
     description: 'Mission-critical contract monitoring for enterprise applications',
     examples: ['Supply chain tracking', 'Payment processing', 'Identity verification'],
     icon: 'users'
-  },
-  {
-    id: 'developer-tools',
-    title: 'Developer Infrastructure',
-    description: 'Build reliable reactive systems with automated funding',
-    examples: ['Testing environments', 'Staging deployments', 'Production monitoring'],
-    icon: 'bot'
   }
 ];
 
 export const TESTIMONIALS: TestimonialData[] = [
   {
     id: '1',
-    quote: 'ReactiveKeeper saved our DeFi protocol from going offline. The monitoring is incredibly reliable.',
+    quote: 'Reactive saved our DeFi protocol from going offline. The monitoring is incredibly reliable.',
     author: 'Sarah Chen',
     role: 'DeFi Protocol Lead',
-    type: 'user'
+    type: 'founder'
   },
   {
     id: '2',
@@ -116,7 +104,7 @@ export const TESTIMONIALS: TestimonialData[] = [
     quote: 'Being able to pay with credit card for contract maintenance is a game-changer for our team.',
     author: 'Alex Kim',
     role: 'Blockchain Engineer',
-    type: 'user'
+    type: 'founder'
   },
   {
     id: '4',

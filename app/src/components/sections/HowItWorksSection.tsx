@@ -12,7 +12,7 @@ const HowItWorksSection: React.FC = () => {
             How It Works
           </h2>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-            Keep your reactive contracts funded and operational in four simple steps. Deploy, configure, fund, and let ReactiveKeeper handle the monitoring.
+            Keep your reactive contracts funded and operational in four simple steps. Deploy, configure, fund, and let Reactive handle the monitoring.
           </p>
         </div>
 

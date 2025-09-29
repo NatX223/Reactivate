@@ -40,7 +40,7 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({ testimonial, classNam
             ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
             : 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
         )}>
-          {testimonial.type === 'developer' ? '👨‍💻 Dev' : '👤 User'}
+          {testimonial.type === 'developer' ? '👨‍💻 Dev' : '👤 founder'}
         </div>
       </div>
     </div>

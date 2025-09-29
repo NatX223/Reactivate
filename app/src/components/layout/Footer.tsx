@@ -20,19 +20,10 @@ const Footer: React.FC = () => {
           {/* Brand Section */}
           <div className="md:col-span-2">
             <div className="flex items-center space-x-2 mb-4">
-              <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">AW</span>
-              </div>
               <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                AutoWall
+                Reactive
               </span>
             </div>
-            <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-md">
-              AutoWall – Autonomous Finance, For Everyone.
-            </p>
-            <p className="text-sm text-gray-500 dark:text-gray-500 max-w-md">
-              Create a smart wallet or upgrade your EOA to perform automatic actions — scheduled payments, auto-investing, yield farming, and more.
-            </p>
           </div>
 
           {/* Footer Sections */}
@@ -78,7 +69,7 @@ const Footer: React.FC = () => {
 
             {/* Copyright */}
             <div className="text-sm text-gray-500 dark:text-gray-400">
-              © {new Date().getFullYear()} AutoWall. All rights reserved.
+              © {new Date().getFullYear()} Reactive. All rights reserved.
             </div>
           </div>
         </div>

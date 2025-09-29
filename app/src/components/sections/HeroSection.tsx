@@ -28,31 +28,23 @@ const HeroSection: React.FC = () => {
             <div className="text-center lg:text-left">
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-clash font-bold mb-6 leading-tight">
                 <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  Your Wallet.
+                  Your Reactive Contracts
                 </span>
                 <br />
                 <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  Autonomous.
+                  Alwasys Active.
                 </span>
               </h1>
 
               <p className="text-xl text-gray-600 dark:text-gray-300 mb-8 leading-relaxed max-w-2xl">
-                Create a smart wallet or upgrade your EOA to perform automatic
-                actions — scheduled payments, auto-investing, yield farming, and
-                more. Developers can extend powers with plug-and-play modules.
+                Monitor and automatically replenish your reactive and callback contracts. 
+                Never let your DeFi protocols go offline due to insufficient funds. 
+                Pay with ETH, REACT tokens, stablecoins, or even credit cards.
               </p>
 
               {/* CTA Buttons */}
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-8">
                 <WalletConnectedButton />
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className="text-lg px-8 py-4"
-                  href="#modules"
-                >
-                  Explore Modules
-                </Button>
               </div>
 
               {/* Caption */}
@@ -62,12 +54,6 @@ const HeroSection: React.FC = () => {
               </p>
             </div>
 
-            {/* Right Side - Animation */}
-            <div className="flex justify-center lg:justify-end">
-              <div className="w-full max-w-md">
-                <WalletHubAnimation />
-              </div>
-            </div>
           </div>
         </div>
 
@@ -89,11 +75,11 @@ const HeroSection: React.FC = () => {
           <div className="text-center lg:text-left">
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-clash font-bold mb-6 leading-tight">
               <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                Reactive Contracts.
+                Your Reactive Contracts.
               </span>
               <br />
               <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                Always Funded.
+                Always Active.
               </span>
             </h1>
 
@@ -106,14 +92,6 @@ const HeroSection: React.FC = () => {
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-8">
               <WalletConnectedButton />
-              <Button
-                variant="outline"
-                size="lg"
-                className="text-lg px-8 py-4"
-                href="#modules"
-              >
-                View Monitoring Tools
-              </Button>
             </div>
 
             {/* Caption */}
@@ -121,13 +99,6 @@ const HeroSection: React.FC = () => {
               <span>Powered by</span>
               <span className="font-clash font-medium">Reactive Network</span>
             </p>
-          </div>
-
-          {/* Right Side - Animation */}
-          <div className="flex justify-center lg:justify-end">
-            <div className="w-full max-w-md">
-              <WalletHubAnimation />
-            </div>
           </div>
         </div>
       </div>

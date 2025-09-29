@@ -10,20 +10,25 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "ReactWallet - Your Autonomous and Modular Wallet.",
-  description: "Create a smart wallet or upgrade your EOA to perform automatic actions — scheduled payments, auto-investing, yield farming, and more.",
-  keywords: "smart wallet, autonomous finance, DeFi automation, Web3, blockchain",
+  title: "Reactivate - Keep Your Reactive Contracts Alive",
+  description:
+    "Reactivate ensures your Reactive and Callback contracts never go inactive. Monitor balances, automate refills, and stay worry-free with ETH, REACT, or stablecoins.",
+  keywords:
+    "reactive contracts, callback contracts, smart contract monitoring, auto refills, Web3 infrastructure, blockchain automation",
   openGraph: {
-    title: "ReactWallet - Your Autonomous and Modular Wallet.",
-    description: "Automate your DeFi activities with smart wallets and modular extensions",
+    title: "Reactivate - Keep Your Reactive Contracts Alive",
+    description:
+      "A monitoring and refill system for Reactive contracts. Track, top-up, and automate — ensuring your dApps never stop working.",
     images: ["/og-image.png"],
   },
   twitter: {
     card: "summary_large_image",
-    title: "AutoWall - Your Wallet. Autonomous.",
-    description: "Create a smart wallet or upgrade your EOA to perform automatic actions",
+    title: "Reactivate - Autonomous Monitoring for Reactive Contracts",
+    description:
+      "Never let your Reactive or Callback contracts go inactive. Reactivate tracks and automatically refills balances.",
   },
 };
+
 
 export default function RootLayout({
   children,

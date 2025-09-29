@@ -7,13 +7,6 @@ interface StepCardProps {
   className?: string;
 }
 
-const iconMap: Record<string, string> = {
-  wallet: '👛',
-  clock: '⏰',
-  puzzle: '🧩',
-  rocket: '🚀'
-};
-
 const StepCard: React.FC<StepCardProps> = ({ step, className }) => {
   return (
     <div className={cn(
@@ -23,11 +16,6 @@ const StepCard: React.FC<StepCardProps> = ({ step, className }) => {
       {/* Step Number */}
       <div className="absolute -top-3 -left-3 w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
         {step.id}
-      </div>
-      
-      {/* Icon */}
-      <div className="text-4xl mb-4 text-center">
-        {iconMap[step.icon] || '⚡'}
       </div>
       
       {/* Content */}

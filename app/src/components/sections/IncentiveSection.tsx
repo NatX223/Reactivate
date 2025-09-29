@@ -7,10 +7,10 @@ const IncentiveSection: React.FC = () => {
         {/* Section Header */}
         <div className="text-center mb-16">
           <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-            Why ReactiveKeeper?
+            Why Reactive?
           </h2>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-            ReactiveKeeper ensures your reactive contracts never fail due to insufficient funds. Whether you're running a DeFi protocol or building reactive applications.
+            Reactive ensures your reactive contracts never fail due to insufficient funds. Whether you're running a DeFi protocol or building reactive applications.
           </p>
         </div>
 
@@ -136,12 +136,12 @@ const IncentiveSection: React.FC = () => {
                 </svg>
               </div>
 
-              {/* ReactiveKeeper */}
+              {/* Reactive */}
               <div className="text-center">
                 <div className="w-20 h-20 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
                   <span className="text-3xl">🔍</span>
                 </div>
-                <h4 className="font-semibold text-gray-900 dark:text-white">ReactiveKeeper</h4>
+                <h4 className="font-semibold text-gray-900 dark:text-white">Reactive</h4>
                 <p className="text-sm text-gray-600 dark:text-gray-300">Monitors & replenishes</p>
               </div>
 
