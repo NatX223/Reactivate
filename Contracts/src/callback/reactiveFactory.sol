@@ -21,9 +21,14 @@ contract ReactiveFactory {
     }
     
     function createReactive(address callbackHandler, address callbackContract, uint256 eventTopic) payable external {
-        Reactive newReactive = new Reactive{value: 0.5 ether}(callbackHandler, callbackContract, eventTopic);
+        Reactive newReactive = new Reactive{value: 2 ether}(callbackHandler, callbackContract, eventTopic);
 
         emit Setup(msg.sender, address(newReactive));
+    }
+
+    function withdraw(address _owner, uint256 amount) external onlyOwner {
+        (bool success, ) = _owner.call{value: amount}("");
+        require(success, "Payment failed.");
     }
 
     receive() external payable {
@@ -32,5 +37,10 @@ contract ReactiveFactory {
             msg.sender,
             msg.value
         );
+    }
+
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Not Authorized to call this function");
+        _;
     }
 }

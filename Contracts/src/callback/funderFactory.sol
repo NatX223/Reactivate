@@ -6,7 +6,6 @@ import './IAccountFactory.sol';
 import './IDevAccount.sol';
 
 contract funderFactory {
-    address public service;
     address private owner;
     address public accountFactory;
 
@@ -31,9 +30,10 @@ contract funderFactory {
     function createFunder(address dev, address callbackContract, address reactiveContract, uint256 refillValue, uint256 refillthreshold) payable external {
         address devAccount = IAccountFactory(accountFactory).devAccounts(dev);
         uint256 devAccountBalance = devAccount.balance;
-        uint256 initialFundAmount = (refillValue * 2) + 0.01 ether;
+        uint256 withdrawAmount = (refillValue * 2);
+        uint256 initialFundAmount = withdrawAmount + 2 ether;
 
-        require(devAccountBalance >= initialFundAmount, "Not enough REACT in dev account");
+        require(devAccountBalance >= withdrawAmount, "Not enough REACT in dev account");
 
         Funder newReactiveFunder = new Funder{value: initialFundAmount}(callbackContract, reactiveContract, refillValue, refillthreshold, devAccount);
         address funderAddress = address(newReactiveFunder);
@@ -44,6 +44,11 @@ contract funderFactory {
         emit Setup(dev, funderAddress);
     }
 
+    function withdraw(address _owner, uint256 amount) external onlyOwner {
+        (bool success, ) = _owner.call{value: amount}("");
+        require(success, "Payment failed.");
+    }
+
     receive() external payable {
         emit Received(
             tx.origin,
@@ -51,4 +56,9 @@ contract funderFactory {
             msg.value
         );
     } 
+
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Not Authorized to call this function");
+        _;
+    }
 }
