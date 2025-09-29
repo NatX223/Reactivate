@@ -104,7 +104,7 @@ export default function DashboardPage() {
   // Check for dev account when wallet is connected
   useEffect(() => {
     const checkDevAccount = async () => {
-      if (!isConnected || !address) {
+      if (!mounted || !isConnected || !address) {
         setAccountCheckLoading(false);
         return;
       }
@@ -139,7 +139,7 @@ export default function DashboardPage() {
     };
 
     checkDevAccount();
-  }, [isConnected, address]);
+  }, [mounted, isConnected, address]);
 
   const handleTopUp = () => {
     if (!topUpAmount || parseFloat(topUpAmount) <= 0) return;
@@ -286,7 +286,17 @@ export default function DashboardPage() {
     </div>
   );
 
-  if (!mounted || accountCheckLoading) {
+  // Don't render anything until mounted to avoid hydration issues
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  // Show loading while checking account
+  if (accountCheckLoading) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
