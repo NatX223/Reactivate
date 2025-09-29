@@ -1,9 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useAccount, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
+import { useAccount } from "wagmi";
 import { useRouter } from "next/navigation";
-import { parseEther, parseUnits, isAddress } from "viem";
 import Navigation from "@/components/layout/Navigation";
 
 interface DashboardStats {
@@ -98,29 +97,6 @@ export default function DashboardPage() {
   const [hasDevAccount, setHasDevAccount] = useState(false);
   const [deploymentLoading, setDeploymentLoading] = useState(false);
 
-  // Contract interaction hooks
-  const { writeContract, data: hash, error: writeError, isPending: isWritePending } = useWriteContract();
-  const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
-    hash,
-  });
-
-  // Contract ABI for setupFunder function
-  const FUNDER_ABI = [
-    {
-      type: "function",
-      name: "setupFunder",
-      inputs: [
-        { name: "callbackContract", type: "address", internalType: "address" },
-        { name: "reactiveContract", type: "address", internalType: "address" },
-        { name: "eventTopic", type: "uint256", internalType: "uint256" },
-        { name: "refillValue", type: "uint256", internalType: "uint256" },
-        { name: "refillthreshold", type: "uint256", internalType: "uint256" }
-      ],
-      outputs: [],
-      stateMutability: "payable"
-    }
-  ] as const;
-
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -199,116 +175,106 @@ export default function DashboardPage() {
       return;
     }
 
+    if (!address) {
+      alert("Please connect your wallet");
+      return;
+    }
+
     try {
       setDeploymentLoading(true);
 
-      // Validate contract addresses
-      if (!isAddress(deploymentForm.callbackContractAddress)) {
-        alert("Invalid callback contract address");
+      // Validate event signature hash format
+      if (
+        !deploymentForm.eventSignatureHash.startsWith("0x") ||
+        deploymentForm.eventSignatureHash.length !== 66
+      ) {
+        alert(
+          "Event signature hash must be a valid 32-byte hex string starting with 0x"
+        );
         setDeploymentLoading(false);
         return;
       }
-      if (!isAddress(deploymentForm.reactiveContractAddress)) {
-        alert("Invalid reactive contract address");
-        setDeploymentLoading(false);
-        return;
-      }
 
-      // Convert values to proper units
-      const refillValueWei = deploymentForm.refillValueToken === "ETH" 
-        ? parseEther(deploymentForm.refillValue)
-        : parseUnits(deploymentForm.refillValue, 18); // Assuming 18 decimals for USDC/REACT
+      // Convert values to wei (assuming 18 decimals)
+      const refillValueWei = (
+        parseFloat(deploymentForm.refillValue) * Math.pow(10, 18)
+      ).toString();
+      const refillThresholdWei = (
+        parseFloat(deploymentForm.refillThreshold) * Math.pow(10, 18)
+      ).toString();
 
-      const refillThresholdWei = deploymentForm.refillThresholdToken === "ETH"
-        ? parseEther(deploymentForm.refillThreshold)
-        : parseUnits(deploymentForm.refillThreshold, 18);
-
-      // Validate and convert event signature hash to uint256
-      if (!deploymentForm.eventSignatureHash.startsWith('0x') || deploymentForm.eventSignatureHash.length !== 66) {
-        alert("Event signature hash must be a valid 32-byte hex string starting with 0x");
-        setDeploymentLoading(false);
-        return;
-      }
-      const eventTopic = BigInt(deploymentForm.eventSignatureHash);
-
-      // Get the funder contract address from environment
-      const FUNDER_CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_FUNDER_CONTRACT_ADDRESS || "0x0000000000000000000000000000000000000000";
-
-      console.log("Calling setupFunder with:", {
-        callbackContract: deploymentForm.callbackContractAddress,
+      console.log("Creating funder with:", {
+        address,
+        callbackAddress: deploymentForm.callbackContractAddress,
         reactiveContract: deploymentForm.reactiveContractAddress,
-        eventTopic: eventTopic.toString(),
-        refillValue: refillValueWei.toString(),
-        refillThreshold: refillThresholdWei.toString()
+        refillValue: refillValueWei,
+        refillthreshold: refillThresholdWei,
+        eventTopic: deploymentForm.eventSignatureHash,
       });
 
-      // Call the setupFunder function
-      await writeContract({
-        address: FUNDER_CONTRACT_ADDRESS as `0x${string}`,
-        abi: FUNDER_ABI,
-        functionName: 'setupFunder',
-        args: [
-          deploymentForm.callbackContractAddress as `0x${string}`,
-          deploymentForm.reactiveContractAddress as `0x${string}`,
-          eventTopic,
-          refillValueWei,
-          refillThresholdWei
-        ],
-        value: refillValueWei // Send the refill value as ETH if needed
+      // Call the API endpoint
+      const response = await fetch("/api/funder/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          address,
+          callbackAddress: deploymentForm.callbackContractAddress,
+          reactiveContract: deploymentForm.reactiveContractAddress,
+          refillValue: refillValueWei,
+          refillthreshold: refillThresholdWei,
+          eventTopic: deploymentForm.eventSignatureHash,
+        }),
       });
 
+      const data = await response.json();
+
+      if (response.ok) {
+        // Add to activity
+        const newActivity: ActivityItem = {
+          id: Date.now().toString(),
+          type: "deployment",
+          description: `New Monitor deployed for ${deploymentForm.reactiveContractAddress.slice(
+            0,
+            8
+          )}...`,
+          date: new Date().toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+          }),
+        };
+
+        setActivities((prev) => [newActivity, ...prev]);
+        setStats((prev) => ({ ...prev, deployments: prev.deployments + 1 }));
+
+        // Reset form and close modal
+        setDeploymentForm({
+          callbackContractAddress: "",
+          reactiveContractAddress: "",
+          eventSignatureHash: "",
+          refillValue: "",
+          refillValueToken: "ETH",
+          refillThreshold: "",
+          refillThresholdToken: "ETH",
+        });
+        setShowDeploymentModal(false);
+
+        alert("Monitor deployed successfully!");
+      } else {
+        alert(`Failed to deploy monitor: ${data.error || "Unknown error"}`);
+      }
     } catch (error) {
-      console.error('Error deploying monitor:', error);
-      alert(`Failed to deploy monitor: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      console.error("Error deploying monitor:", error);
+      alert(
+        `Failed to deploy monitor: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
+    } finally {
       setDeploymentLoading(false);
     }
   };
-
-  // Handle successful transaction
-  useEffect(() => {
-    if (isConfirmed && hash) {
-      // Add to activity
-      const newActivity: ActivityItem = {
-        id: Date.now().toString(),
-        type: "deployment",
-        description: `New Monitor deployed for ${deploymentForm.reactiveContractAddress.slice(
-          0,
-          8
-        )}...`,
-        date: new Date().toLocaleDateString("en-US", {
-          month: "short",
-          day: "numeric",
-        }),
-      };
-
-      setActivities((prev) => [newActivity, ...prev]);
-      setStats((prev) => ({ ...prev, deployments: prev.deployments + 1 }));
-
-      // Reset form and close modal
-      setDeploymentForm({
-        callbackContractAddress: "",
-        reactiveContractAddress: "",
-        eventSignatureHash: "",
-        refillValue: "",
-        refillValueToken: "ETH",
-        refillThreshold: "",
-        refillThresholdToken: "ETH",
-      });
-      setShowDeploymentModal(false);
-      setDeploymentLoading(false);
-
-      alert(`Monitor deployed successfully! Transaction hash: ${hash}`);
-    }
-  }, [isConfirmed, hash]);
-
-  // Handle transaction errors
-  useEffect(() => {
-    if (writeError) {
-      console.error('Transaction error:', writeError);
-      alert(`Transaction failed: ${writeError.message}`);
-      setDeploymentLoading(false);
-    }
-  }, [writeError]);
 
   const InfoTooltip = ({ text }: { text: string }) => (
     <div className="group relative inline-block ml-2">
@@ -733,15 +699,13 @@ export default function DashboardPage() {
                       </button>
                       <button
                         onClick={handleDeploymentSubmit}
-                        disabled={deploymentLoading || isWritePending || isConfirming}
+                        disabled={deploymentLoading}
                         className="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors duration-200 flex items-center gap-2"
                       >
-                        {(deploymentLoading || isWritePending || isConfirming) && (
+                        {deploymentLoading && (
                           <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
                         )}
-                        {isWritePending ? "Confirm in Wallet..." : 
-                         isConfirming ? "Confirming..." : 
-                         "Deploy Monitor"}
+                        {deploymentLoading ? "Deploying..." : "Deploy Monitor"}
                       </button>
                     </div>
                   </div>

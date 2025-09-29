@@ -5,7 +5,7 @@ import './funder.sol';
 import './IAccountFactory.sol';
 import './IDevAccount.sol';
 
-contract funderFactory {
+contract FunderFactory {
     address private owner;
     address public accountFactory;
     address public latestDeployed;
