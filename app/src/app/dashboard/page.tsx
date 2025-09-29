@@ -124,7 +124,7 @@ export default function DashboardPage() {
               ...prev,
               balance: {
                 ...prev.balance,
-                react: parseFloat(data.balance) || 0,
+                react: parseFloat(data.balance || "0") || 0,
               },
             }));
           }
