@@ -13,7 +13,7 @@ contract DebtPayer is AbstractCallback {
 
     event debtPaid(address indexed fundedContract);
     
-    constructor(address _service, address _callbackContract, address _reactiveContract) AbstractCallback(_service) payable {
+    constructor(address _callbackContract, address _reactiveContract) AbstractCallback(SYSTEM_CONTRACT) payable {
         callbackContract = _callbackContract;
         reactiveContract = _reactiveContract;
     }

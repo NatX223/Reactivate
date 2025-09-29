@@ -5,6 +5,7 @@ import './reactive.sol';
 
 contract ReactiveFactory {
     address private owner;
+    address public latestDeployed;
 
     event Received(
         address indexed origin,
@@ -22,7 +23,8 @@ contract ReactiveFactory {
     
     function createReactive(address callbackHandler, address callbackContract, uint256 eventTopic) payable external {
         Reactive newReactive = new Reactive{value: 2 ether}(callbackHandler, callbackContract, eventTopic);
-
+        latestDeployed = address(newReactive);
+        
         emit Setup(msg.sender, address(newReactive));
     }
 

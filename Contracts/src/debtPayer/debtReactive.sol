@@ -10,6 +10,7 @@ contract DebtReactive is IReactive, AbstractPausableReactive {
     uint64 private constant GAS_LIMIT = 1000000;
     uint256 private CHAIN_ID;
     uint256 private constant EVENT_TOPIC_0 = 0xae9b008540831f838abd0c11ccc58c6373c34ab68e881d96aefe64688f45ec6d;
+    address public constant SERVICE = 0x0000000000000000000000000000000000fffFfF;
     
     address public debtPayer;
     address public funderContract;
@@ -20,11 +21,11 @@ contract DebtReactive is IReactive, AbstractPausableReactive {
         uint256 indexed value
     );
 
-    constructor(address _service, address _debtPayer, address _funderContract) payable {
+    constructor(address _debtPayer, address _funderContract) payable {
         CHAIN_ID = block.chainid;
         debtPayer = _debtPayer;
         _funderContract = funderContract;
-        service = ISystemContract(payable(_service));
+        service = ISystemContract(payable(SERVICE));
         if (!vm) {
             service.subscribe(CHAIN_ID, _funderContract, EVENT_TOPIC_0, REACTIVE_IGNORE, REACTIVE_IGNORE, REACTIVE_IGNORE);
         }

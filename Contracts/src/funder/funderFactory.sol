@@ -8,6 +8,7 @@ import './IDevAccount.sol';
 contract funderFactory {
     address private owner;
     address public accountFactory;
+    address public latestDeployed;
 
     event Received(
         address indexed origin,
@@ -40,6 +41,8 @@ contract funderFactory {
 
         IDevAccount(devAccount).withdraw(address(this), initialFundAmount);
         IDevAccount(devAccount).whitelist(funderAddress);
+
+        latestDeployed = funderAddress;
 
         emit Setup(dev, funderAddress);
     }
