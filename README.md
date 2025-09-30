@@ -4,7 +4,7 @@ One stop solution to keep your reactive and callback contracts always active
 ---  
 
 ## Live Link - https://reactivate-seven.vercel.app/
-## Demo - 
+## Demo - https://www.loom.com/share/7d530114a9b24a59bbbbd48a1251e602?sid=0e3139a0-ae2c-4bf9-a716-a520cac537b0
 
 ## Table of Contents  
 
@@ -156,7 +156,6 @@ reactivating an inactive contract
 ```
 The full code can be found [here](https://github.com/NatX223/Reactivate/tree/main/Contracts/src)
 
-
 - Smart contract factories were utilized to make it easier to quickly deploy the needed contracts here their addresses on the react mainnet.
 
 | **Contract**            | **Addres**                                 | **Function**                                                             |
@@ -166,6 +165,8 @@ The full code can be found [here](https://github.com/NatX223/Reactivate/tree/mai
 | **ReactiveFactory**     | 0x534028e697fbAF4D61854A27E6B6DBDc63Edde8c | Deploying reactive contracts that track callback.                        |
 | **DebtPayerFactory**    |  | Deploying debt payer callback contracts.                                 |
 | **DebtReactiveFactpry** |  | Deploying reactive contracts that track contract status.                 |
+
+Below is a table showing example contracts and their transaction hashes 
 
 
 ### Node.js
@@ -260,8 +261,6 @@ The repository has to be cloned first
   ```bash
   forge create --broadcast --rpc-url $REACT_RPC_URL --private-key $PRIVATE_KEY src/debtPayer/debtPayerReactive.sol:DebtPayerReactive --value initialfundamountether --constructor-args 0xyouraddress 0xdebtpayerContract 0xfunderContract
   ```
-
-- Backend
 ---  
 
 ## Future Improvements
