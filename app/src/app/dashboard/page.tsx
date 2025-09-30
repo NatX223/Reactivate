@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useAccount } from "wagmi";
 import { useRouter } from "next/navigation";
 import Navigation from "@/components/layout/Navigation";
+import ClientOnly from "@/components/ClientOnly";
 
 interface DashboardStats {
   balance: {
@@ -71,7 +72,7 @@ const MOCK_ACTIVITIES: ActivityItem[] = [
   },
 ];
 
-export default function DashboardPage() {
+function DashboardContent() {
   const { address, isConnected } = useAccount();
   const router = useRouter();
   const [stats, setStats] = useState<DashboardStats>(MOCK_STATS);
@@ -735,5 +736,13 @@ export default function DashboardPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function DashboardPage() {
+  return (
+    <ClientOnly>
+      <DashboardContent />
+    </ClientOnly>
   );
 }

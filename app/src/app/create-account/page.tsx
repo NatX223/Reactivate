@@ -4,13 +4,14 @@ import React, { useState, useEffect } from "react";
 import { useAccount } from "wagmi";
 import { useRouter } from "next/navigation";
 import Navigation from "@/components/layout/Navigation";
+import ClientOnly from "@/components/ClientOnly";
 
 interface CreateAccountFormData {
   contractCount: string;
   contractType: "reactive" | "callback" | "mixed";
 }
 
-export default function CreateAccountPage() {
+function CreateAccountContent() {
   const { address, isConnected } = useAccount();
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
@@ -264,5 +265,13 @@ export default function CreateAccountPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function CreateAccountPage() {
+  return (
+    <ClientOnly>
+      <CreateAccountContent />
+    </ClientOnly>
   );
 }
