@@ -156,6 +156,64 @@ reactivating an inactive contract
 ```
 The full code can be found [here](https://github.com/NatX223/Reactivate/tree/main/Contracts/src)
 
+- Bridging Tokens - In order to fund dev accounts with ETH from Base, we built a mini base bridge that devs can deposit to then the emitted 
+"Received(address,uint256)" is tracked by a reactive contract deployed n REACT mainnet and a corresponding callback to dispense the REACT tokens.
+Here are some code snippets
+receive function on base bridge contract
+```solidity
+    receive() external payable {
+        if (msg.value > 0.00024 ether) {
+            (bool success, ) = msg.sender.call{value: msg.value}("");
+            require(success, "Payment value exceeded.");
+        } else {
+            emit Received(
+            msg.sender,
+            msg.value
+        );
+        }
+    }
+```
+bridge react function
+```solidity
+    function react(LogRecord calldata log) external vmOnly {
+        address recipient = address(uint160(log.topic_1));
+        uint256 sentValue = uint256(log.topic_2);
+
+        bytes memory payload = abi.encodeWithSignature(
+            "callback(address, address, uint256)",
+            address(0),
+            recipient,
+            sentValue
+        );
+
+        emit Callback(
+        REACT_ID,
+        callbackHandler,
+        GAS_LIMIT,
+        payload
+    );
+    }
+```
+callback on the bridge callback contract
+```solidity
+    function callback(address sender, address recipient, uint256 sentValue) external authorizedSenderOnly rvmIdOnly(sender) {
+        address devAccount = IAccountFactory(accountFactoryContract).devAccounts(recipient);
+        if (devAccount == address(0)) {
+            uint256 receiveValue = (sentValue * rateNum) / rateDen;
+            (bool success, ) = recipient.call{value: receiveValue}("");
+            require(success, "brdging failed.");
+
+            emit bridgeHandled(recipient, sentValue, receiveValue);
+        } else {
+            uint256 receiveValue = (sentValue * rateNum) / rateDen;
+            (bool success, ) = devAccount.call{value: receiveValue}("");
+            require(success, "brdging failed.");
+
+            emit bridgeHandled(recipient, sentValue, receiveValue);
+        }
+    }
+```
+
 - Smart contract factories were utilized to make it easier to quickly deploy the needed contracts here their addresses on the react mainnet.
 
 | **Contract**            | **Addres**                                 | **Function**                                                             |
@@ -163,11 +221,16 @@ The full code can be found [here](https://github.com/NatX223/Reactivate/tree/mai
 | **AccountFactory**      | 0xD2401b212eFc78401b51C68a0CC92B1163b1e6db | Deploying dev accounts for users - these are used to fund their contracts|
 | **FunderFactory**       | 0x504731A1b6a7706dCef75f42DEE72565D41B097C | Deploying funder callback contracts.                                     |
 | **ReactiveFactory**     | 0x534028e697fbAF4D61854A27E6B6DBDc63Edde8c | Deploying reactive contracts that track callback.                        |
-| **DebtPayerFactory**    |  | Deploying debt payer callback contracts.                                 |
-| **DebtReactiveFactpry** |  | Deploying reactive contracts that track contract status.                 |
+| **DebtPayerFactory**    | 0x3054Ea734dd290DcC3bf032bE50493ABd4361910 | Deploying debt payer callback contracts.                                 |
+| **DebtReactiveFactory** | 0xB89f13F648c554cb18A120BA82E42Beda4557792 | Deploying reactive contracts that track contract status.                 |
 
-Below is a table showing example contracts and their transaction hashes 
+Below is a table showing example contracts and their transaction hashes.
 
+| **Contract**            | **Function**                               | **TransactionHash**                                                      |
+|-------------------------|--------------------------------------------|--------------------------------------------------------------------------|
+| **DevAccount**          | Dev Account funding                        | 0xabde594de4e1f00badd7d9b85b4e50d41b578908a8ef51fe744facdd9908541e       |
+| **FunderReactive**      | Tracking event on callback contract        | 0x3001c5bccb5f7f492307b1acf73a04c37a667c4a543b5e1f510f17da08066b8d       |
+| **FunderContract**      | Funding reactive and/or callback contract  | 0x060fef5c78bcaee31648f9698c2904c36a93c84cc9bbcf70f05837c4264dc046       |
 
 ### Node.js
 

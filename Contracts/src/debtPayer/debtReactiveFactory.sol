@@ -12,6 +12,7 @@ contract DebtReactiveFactory {
         address indexed sender,
         uint256 indexed value
     );
+    
     event Setup(
         address indexed dev,
         address indexed debtReactive
