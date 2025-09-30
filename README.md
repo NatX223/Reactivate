@@ -3,7 +3,7 @@ One stop solution to keep your reactive and callback contracts always active
 
 ---  
 
-## Live Link - 
+## Live Link - https://reactivate-seven.vercel.app/
 ## Demo - 
 
 ## Table of Contents  
@@ -21,11 +21,9 @@ One stop solution to keep your reactive and callback contracts always active
 
 ## Overview  
 
-FlareSec is a native multi-factor authentication (MFA) service for the Flare blockchain, designed to enhance asset security by adding an extra verification 
-step for sensitive smart contract functions such as transfer and approve.
+Reactive and callback contracts need constant funding with REACT or native tokens to stay active. Without this, they become inactive, especially when tracking high-volume events. Developers are forced to manually monitor and top up contracts, leading to downtime and missed events.
 
-It introduces email-based authentication alongside standard wallet signatures to help prevent unauthorized transactions and give users greater control over 
-their assets. Fully integrated with Flare’s infrastructure, FlareSec offers a seamless, decentralized way to secure on-chain interactions.
+Reactivate automates this process. It deploys monitoring and funding contracts that track events, check balances, and refill when needed. If a contract becomes inactive, coverDebt() is triggered to restore it. This makes Reactive contracts self-sustaining, reliable, and production-ready.
 
 ---  
 
@@ -69,239 +67,211 @@ The working mechanism of the dapp can be broken down into 4 steps
 | **Wagmi**         | Smart contract interaction.                              | 
 | **Next.js**       | Frontend framework for building the user interface.      |  
 
-### Flare
+### Reactive
 
-In order to build FlareSec, native Flare technologies were utilized. Because these technologies are built in, It was easier to properly utilize them.
-The Secure Random Number and Flare Data Connector features were used, Below is a description of how each of these technologies were used in building the project.
+Reactivate was built to prevent and solve inactive reactive and callback contracts, but in order to accomplish we also used these utilities.
+Another problem that we aimed to solve with the project is the tideous process it takes for developers to get REACT mainnet tokens to power their contracts, 
+to solve this we also made use of reactive contracts to make funding their dev accounts easier, this was accomplished by reactive contracts that handled the "bridging process".
+Below is a description of the reactive stack was used in the project.
 
-- Secure Random Number - The Secure Random Number feature is used in randomly selecting which validator will be responsible for carrying out a transaction 
-once it has been approved or rejected. It was also used in a hashing function for determining the unique Id for each transaction.
-Below is a code snippet showing how SRN was generated and used in the project
+- Contract Funding - To keep track of a reactive contract's balance we wrote a reactive contract that tracks the contract's usage 
+i.e a reactive contract that listens for the event that is emitted in a callback contract and then checks the balance of both 
+the first reactive contract and that of it's callback if any of them have below the specified threshold then the funder contract 
+sends the refill amount to the reactive contract and/or the callback and if the callback and/or reactive contract is inactive then it calls the "coverDebt()" function 
+to reactivate them. Below are the code snippets that show how this was implemented.
+deploying a funder contract
 ```solidity
-    function getValidationParams(address contractAddress) public returns (address validator, uint256 reqId) {
-        // get validator count
-        validatorCount.current();
-        // generate random number within that range
-        (uint256 randomNumber, , ) = getSecureRandomNumber();
-        uint256 validatorIndex = randomNumber % validatorCount.current();
+  function createFunder(address dev, address callbackContract, address reactiveContract, uint256 refillValue, uint256 refillthreshold) payable external {
+      address devAccount = IAccountFactory(accountFactory).devAccounts(dev);
+      uint256 devAccountBalance = devAccount.balance;
+      uint256 withdrawAmount = (refillValue * 2);
+      uint256 initialFundAmount = withdrawAmount + 2 ether;
 
-        validator = validatorAddresses[validatorIndex];
-        reqId = uint256(keccak256(abi.encodePacked(randomNumber, block.timestamp, contractAddress)));
+      require(devAccountBalance >= withdrawAmount, "Not enough REACT in dev account");
 
-        // Set the latest chosen validator
-        latestValidator = validator;
+      Funder newReactiveFunder = new Funder{value: initialFundAmount}(callbackContract, reactiveContract, refillValue, refillthreshold, devAccount);
+      address funderAddress = address(newReactiveFunder);
 
-        return (validator, reqId);
-    }
+      IDevAccount(devAccount).withdraw(address(this), initialFundAmount);
+      IDevAccount(devAccount).whitelist(funderAddress);
 
-    function getSecureRandomNumber()
-        internal
-        view
-        returns (uint256 randomNumber, bool isSecure, uint256 timestamp)
-    {
-        (randomNumber, isSecure, timestamp) = randomV2.getRandomNumber();
-        require(isSecure, "Random number is not secure");
-        return (randomNumber, isSecure, timestamp);
-    }
-```
-The full code for the contract the Secure Random Number was used can be found [here](https://github.com/NatX223/FlareSec/blob/main/smart%20contracts/contracts/Control.sol).
+      latestDeployed = funderAddress;
 
-- Flare Data Connector - Another key component that is integral to the project is the use Flare Data Connector. FDC eneabled the passing of verified 
-external data to asset smart contracts. This was absolutely neccesary because the service requires valid proofs as it handles user assets and that is 
-what FDC provides - verifiable proof that a user has approved or rejected a transaction through their email. The proof is first generated off-chain then 
-passed on on-chain by a validator calling a validation function on an asset contract.  
-Below is a code snippet showing some of the specs and how proofs are generated 
-```javascript
-const postprocessJq = `{owner: .owner, spender: .spender, receiver: .receiver, amount: .amount, status: .status, initiatedTime: .initiatedTime}`;
-const abiSignature = `{\"components\": [{\"internalType\": \"address\", \"name\": \"owner\", \"type\": \"address\"},{\"internalType\": \"address\", \"name\": \"spender\", \"type\": \"address\"},{\"internalType\": \"address\", \"name\": \"receiver\", \"type\": \"address\"},{\"internalType\": \"uint256\", \"name\": \"amount\", \"type\": \"uint256\"},{\"internalType\": \"enum IERC20x.Status\", \"name\": \"status\", \"type\": \"uint8\"},{\"internalType\": \"uint256\", \"name\": \"initiatedTime\", \"type\": \"uint256\"}],\"name\": \"task\",\"type\": \"tuple\"}`;
-
-const attestationTypeBase = "IJsonApi";
-const sourceIdBase = "WEB2";
-``` 
-
-Proof generation
-```javascript
-async function retrieveDataAndProof(
-    abiEncodedRequest,
-    roundId
-) {
-    const url = `${COSTON2_DA_LAYER_URL}api/v1/fdc/proof-by-request-round-raw`;
-    console.log("Url:", url, "\n");
-    return await retrieveDataAndProofBase(url, abiEncodedRequest, roundId);
-}
-
-async function retrieveDataAndProofBase(
-  url,
-  abiEncodedRequest,
-  roundId
-) {
-  console.log("Waiting for the round to finalize...");
-  // We check every 10 seconds if the round is finalized
-  const relay = await getRelay();
-  while (!(await relay.isFinalized(200, roundId))) {
-    await sleep(10000);
+      emit Setup(dev, funderAddress);
   }
-  console.log("Round finalized!\n");
-
-  const request = {
-    votingRoundId: roundId,
-    requestBytes: abiEncodedRequest,
-  };
-  console.log("Prepared request:\n", request, "\n");
-
-  await sleep(10000);
-  var proof = await postRequestToDALayer(url, request, true);
-  console.log("Waiting for the DA Layer to generate the proof...");
-  while (proof.response_hex == undefined) {
-    await sleep(5000);
-    proof = await postRequestToDALayer(url, request, false);
-  }
-  console.log("Proof generated!\n");
-
-  console.log("Proof:", proof, "\n");
-  return proof;
-}
 ```
-In the smart cntracts the use of the external data gotten from the validation API is highlighted below
+deploying a reactive contract to track callback events
 ```solidity
-    function validateTransfer(uint256 reqId, IJsonApi.Proof calldata data) external onlyValidator(reqId) returns(bool) {
-        require(isJsonApiProofValid(data), "Invalid proof");
-        require(requests[reqId].status != Status.Approved, "Transaction already approved");
+    function createReactive(address funderContract, address callbackContract, uint256 eventTopic) payable external {
+        Reactive newReactive = new Reactive{value: 2 ether}(funderContract, callbackContract, eventTopic);
+        latestDeployed = address(newReactive);
         
-        Request memory params = abi.decode(data.data.responseBody.abi_encoded_data, (Request));
+        emit Setup(msg.sender, address(newReactive));
+    }
+```
+funding a reactive and/or callback Contract
+```solidity
+    function callback(address sender) external authorizedSenderOnly rvmIdOnly(sender) {
+        uint256 callbackBal = callbackReceiver.balance;
+        if (callbackBal <= refillThreshold) {
+            (bool success, ) = callbackReceiver.call{value: refillValue}("");
+            require(success, "Payment failed.");
 
-        // Check the status of the request
-        require(params.status == Status.Approved, "Transfer request is still pending or has been denied");
+            IDevAccount(devAccount).withdraw(address(this), refillValue);
 
-        if (params.status == Status.Denied) {
-            requests[reqId].status = Status.Denied;
-            revert("Transfer request has been denied");
-        } else if (params.status == Status.Pending) {
-            revert("Transfer request is still pending");
+            emit refillHandled(address(this), callbackReceiver);
+        } else {
+            emit callbackHandled(address(this));
         }
 
-        // Get the max approval time from the Control contract
-        uint maxApprovalTime = IControl(controlContract).maxApprovalTime();
+        uint256 reactiveBal = reactiveReceiver.balance;
+        if (reactiveBal <= refillThreshold) {
+            (bool success, ) = reactiveReceiver.call{value: refillValue}("");
+            require(success, "Payment failed.");
 
-        // Check that the time difference is within the max approval time
-        require(block.timestamp <= requests[reqId].initiatedTime + maxApprovalTime, "Approval time exceeded");
+            IDevAccount(devAccount).withdraw(address(this), refillValue);
 
-        // Additional logic for validation can be added here
-        _burn(_msgSender(), requests[reqId].amount);
-        ERC20(originalContract).transfer(requests[reqId].receiver, requests[reqId].amount);
+            emit refillHandled(address(this), reactiveReceiver);
+        } else {
+            emit callbackHandled(address(this));
+        }
 
-        requests[reqId].status = Status.Approved;
-
-        return true; // Return true if validation is successful
     }
-``` 
-
-Use of example specifications
-```bash
-attestation_type: '0x494a736f6e417069000000000000000000000000000000000000000000000000',
-sourceId: '0x5745423200000000000000000000000000000000000000000000000000000000',
-votingRound: 964883n,
-proof: [
-  '0xf0bedb4fd550d6c3f4e25983d9aadf33c46330c7203e08439e04f3893d64e1ac',
-  '0x7cf5d720a1bf44c5333a3fda07e612f9c4b520d4668ed85457fc31bad3142d56',
-  '0x10e655fa5a9bc7cd3752a872355d953cb62707057a9f88bedae415e977ec70e0',
-  '0x2bc21662211af868bbc81c5c4b93f8aaa091498797ed7b4633ec93237ea4ff91'
-]
-url: 'https://96c5-62-173-60-250.ngrok-free.app/event/1767448648305103850985470812704491472459415057420211611911389935726085599372',
-postprocessJq: '{owner: .owner, spender: .spender, receiver: .receiver, amount: .amount, status: .status, initiatedTime: .initiatedTime}',
-abi_signature: '{"components": [{"internalType": "address", "name": "owner", "type": "address"},{"internalType": "address", "name": "spender", "type": "address"},{"internalType": "address", "name": "receiver", "type": "address"},{"internalType": "uint256", "name": "amount", "type": "uint256"},{"internalType": "enum IERC20x.Status", "name": "status", "type": "uint8"},{"internalType": "uint256", "name": "initiatedTime", "type": "uint256"}],"name": "task","type": "tuple"}'
-abi_encoded_data: '0x0000000000000000000000002ae67a159fc288db6ba4407c014f20147130b54a00000000000000000000000000000000000000000000000000000000000000000000000000000000000000006897d3a40bf4f217f3f26cb4c31baf490b5ec074000000000000000000000000000000000000000000000000000000000000006400000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000068064afb'
 ```
-The full code to contracts that utilize FDC can be found [here](https://github.com/NatX223/FlareSec/blob/main/smart%20contracts/contracts/Tokenx.sol) and [here](https://github.com/NatX223/FlareSec/blob/main/smart%20contracts/contracts/NFTx.sol).
+reactivating an inactive contract
+```solidity
+    function callback(address sender) external authorizedSenderOnly rvmIdOnly(sender) {
+        uint256 callbackDebt = ISystem(SYSTEM_CONTRACT).debts(callbackContract);
+        uint256 reactiveDebt = ISystem(SYSTEM_CONTRACT).debts(reactiveContract);
+        if (callbackDebt > 0) {
+            IAbsctractPayer(callbackContract).coverDebt();
+            emit debtPaid(address(this));
+        }
 
-- The smart contracts were deployed on the Coston2 testnet, below is a table showing the contracts deployed and their addreess
+        if (reactiveDebt > 0) {
+            IAbsctractPayer(reactiveContract).coverDebt();
+            emit debtPaid(address(this));
+        }
+    }
+```
+The full code can be found [here](https://github.com/NatX223/Reactivate/tree/main/Contracts/src)
 
-| **Contract**        | **Addres**                                 | **Function**                                                             |
-|---------------------|--------------------------------------------|--------------------------------------------------------------------------|
-| **Control**         | 0x8c54cbb9e358888B902725593a5006A96a8C9551 | Setting protocol params and generating transaction validator and id      |
-| **TokenXFactory**   | 0x8B8b617Ce5FF505C04723107221F2757154Dc25A | TokenX contract creation/deployment                                      |
-| **NFTXFactory**     | 0x4E82f9A00C76a6c966e8A4a9A1382CEeD37FFC17 | NFTX contract creation/deployment                                        |
-| **TokenXRouter**    | 0x4798963E50accCc36781C3F0cf12b38A93777EbA | Broadcasting TokenX transactions - emitting trackable transaction events | 
-| **NFTXRouter**      | 0x5E5EcA08e8978BE3D52e7874B6B8080154E55E53 | Broadcasting NFTX transactions - emitting trackable transaction events   |
+
+- Smart contract factories were utilized to make it easier to quickly deploy the needed contracts here their addresses on the react mainnet.
+
+| **Contract**            | **Addres**                                 | **Function**                                                             |
+|-------------------------|--------------------------------------------|--------------------------------------------------------------------------|
+| **AccountFactory**      | 0xD2401b212eFc78401b51C68a0CC92B1163b1e6db | Deploying dev accounts for users - these are used to fund their contracts|
+| **FunderFactory**       | 0x504731A1b6a7706dCef75f42DEE72565D41B097C | Deploying funder callback contracts.                                     |
+| **ReactiveFactory**     | 0x534028e697fbAF4D61854A27E6B6DBDc63Edde8c | Deploying reactive contracts that track callback.                        |
+| **DebtPayerFactory**    |  | Deploying debt payer callback contracts.                                 |
+| **DebtReactiveFactpry** |  | Deploying reactive contracts that track contract status.                 |
 
 
 ### Node.js
 
-The project utilizes off-chain data to verify on-chain transactions, as such there was need for a external data source and this came in form of a server.
-The server is responsible for tracking events from the router contracts, alerting the user through their emails and then notifying the assigned validator
-to get the users response, generating a proof for it and finally executing the function on-chain. The full code for the general backend and validator can 
-be found [here](https://github.com/NatX223/FlareSec/tree/main/backend/src) and [here](https://github.com/NatX223/FlareSec/tree/main/validator/src) respectively. 
-
-### MailerSend
-
-MailerSend was used for relaying email alerts to users, it was chosen because of its speed and ease of use.
+The project utilizes a backend to improve the user experience, especially when deploying contracts like the funder and debt payer contracts. The backend was
+developed using Node.js and Express.js, it handles user registration, contract deployment, and other related tasks.
 
 ## Setup and Deployment  
 
 ### Prerequisites  
 
 - Node.js v16+  
-- Solidity development environment(Hardhat recommended)
-- Blockchain wallets (e.g., MetaMask)  
+- Solidity development environment(Foundry)
 
 ### Local Setup  
 
 The repository has to be cloned first
 
 ```bash  
-  git clone https://github.com/NatX223/FlareSec  
+  git clone https://github.com/NatX223/Reactivate  
 ```
 - Smart contracts
 
 1. Navigate to the smart contracts directory:  
   ```bash  
-  cd smart contracts  
+  cd Contracts  
   ```  
 2. Install dependencies:  
   ```bash  
-  npm install  
+  forge install
   ```  
 3. Set up environment variables:
   ```  
-  CONTROL_OWNER=<Controller private key>
-  VALIDATOR=<Validator private key>
-  FLARE_RPC_URL=https://coston2-api.flare.network/ext/C/rpc
-  COSTON2_FLARESCAN_API=https://api.routescan.io/v2/network/testnet/evm/114/etherscan/api
-  FLARE_FLARESCAN_API=https://api.routescan.io/v2/network/mainnet/evm/14/etherscan/api 
+  PRIVATE_KEY=<private key>
+  REACT_RPC_URL=https://mainnet-rpc.rnk.dev/
   ```  
 4. Compile smart contracts:  
   ```bash  
-  npx hardhat compile  
+  forge build 
   ```  
-5. Run some tests:
+5. Run deployment scripts:
+  deploy dev account
+  - using the factory
   ```bash
-  npx hardhat run scripts/test/control.test.js --network flare
+  cast send --rpc-url $REACT_RPC_URL --private-key $PRIVATE_KEY accountFactoryAddress "createAccount(address)" 0xyouraddress --value initialfundamountether
   ```
+  - deploying directly
   ```bash
-  npx hardhat run scripts/test/tokenx.test.js --network flare
+  forge create --broadcast --rpc-url $REACT_RPC_URL --private-key $PRIVATE_KEY src/account/devAccount.sol:DevAccount --value initialfundamountether --constructor-args 0xyouraddress
   ```
-6. Run deployment scripts:
+  deploy funder(callback) contract
+  - using the factory
   ```bash
-  npx hardhat run scripts/control.js --network flare
+  cast send --rpc-url $REACT_RPC_URL --private-key $PRIVATE_KEY funderFactoryAddress "createFunder(address,address,address,uint256,uint256)" 0xyouraddress 0xcallbackContract 0xreactiveContract refillValue refillthreshold --value initialfundamountether
   ```
+  - deploying directly
   ```bash
-  npx hardhat run scripts/assets.js --network flare
+  forge create --broadcast --rpc-url $REACT_RPC_URL --private-key $PRIVATE_KEY src/funder/funder.sol:Funder --value initialfundamountether --constructor-args 0xcallbackContract 0xreactiveContract refillValue refillthreshold 0xyourDevAccount
   ```
+  deploy reactive contract
+  - getting funder contract address
   ```bash
-  npx hardhat run scripts/factory.js --network flare
+  cast call --rpc-url $REACT_RPC_URL funderFactoryAddress "latestDeployed()"
+  ```
+  - using the factory
+  ```bash
+  cast send --rpc-url $REACT_RPC_URL --private-key $PRIVATE_KEY reactiveFactoryAddress "createReactive(address,address,uint256)" 0xdeployedfunderaddress 0xcallbackContract calleventtopic --value initialfundamountether
+  ```
+  - deploying directly
+  ```bash
+  forge create --broadcast --rpc-url $REACT_RPC_URL --private-key $PRIVATE_KEY src/funder/reactive.sol:Reactive --value initialfundamountether --constructor-args 0xdeployedfunderaddress 0xcallbackContract calleventtopic
+  ```
+  deploy debt payer contract
+  - using debt payer factory
+  ```bash
+  cast send --rpc-url $REACT_RPC_URL --private-key $PRIVATE_KEY debtPayerFactoryAddress "createPayer(address,address,address)" 0xyouraddress 0xcallbackContract 0xreactiveContract --value initialfundamountether
+  ```
+  - deploying directly
+  ```bash
+  forge create --broadcast --rpc-url $REACT_RPC_URL --private-key $PRIVATE_KEY src/debtPayer/debtPayer.sol:DebtPayer --value initialfundamountether --constructor-args 0xcallbackContract 0xreactiveContract
+  ```
+  deploy debt reactive contract
+  - getting debt payer address
+  ```bash
+  cast call --rpc-url $REACT_RPC_URL debtPayerFactoryAddress "latestDeployed()"
+  ```
+  - using debt reactive factory
+  ```bash
+  cast send --rpc-url $REACT_RPC_URL --private-key $PRIVATE_KEY debtReactiveFactoryAddress "createPayerReactive(address,address,address)" 0xyouraddress 0xdebtpayerContract 0xfunderContract --value initialfundamountether
+  ```
+  - deploying directly
+  ```bash
+  forge create --broadcast --rpc-url $REACT_RPC_URL --private-key $PRIVATE_KEY src/debtPayer/debtPayerReactive.sol:DebtPayerReactive --value initialfundamountether --constructor-args 0xyouraddress 0xdebtpayerContract 0xfunderContract
   ```
 
+- Backend
 ---  
 
 ## Future Improvements
 
-1. Provide support for SMS notification and Auntentication apps.
+1. Enable funding contracts to track callback events from other chains.
 2. Extensive audits on the protocol's smart contracts.
-3. Mainnet deployment.
-3. Building a wallet mobile app.
+3. Purchasing more REACT tokens to aid seamless payment "bridging".
 
 ---  
 
 ## Acknowledgments  
 
-Special thanks to **Flare x Encode Hackathon 2025** organizers: Flare and Encode. The Flare products played a pivotal role in building FlareSec functionality and impact.
+Special thanks to **BUIDL WITH REACT x Dorahacks Hackathon 2025** organizers: REACT and other sponsors like Base. The REACT products played a pivotal role in building Reactivate functionality and impact. Special thanks to all builders and mentors - Ivan and Constantine for all the help rendered during the build phase.
