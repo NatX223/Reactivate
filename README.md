@@ -3,7 +3,7 @@ One stop solution to keep your reactive and callback contracts always active
 
 ---  
 
-## Live Link - https://reacti-vate.com
+## Live Link - https://reactivat.app
 ## Demo - https://www.loom.com/share/7d530114a9b24a59bbbbd48a1251e602?sid=0e3139a0-ae2c-4bf9-a716-a520cac537b0
 
 ## Table of Contents  
